@@ -10,7 +10,7 @@ Building MongoDB for record all UiPath robot execution logs.
 
 | Server             | Hardware Spec                 | Amount |
 |:------------------ |:----------------------------- |:------ |
-| QuantaGrid D52Y-2U |                               | 3      |
+| QuantaGrid D52Y-2U | Storage SKU                   | 3      |
 | CPU                | Intel® Xeon® Gold 5218        | 6      |
 | RAM                | Skhynix 2666Hz 2R4 32G        | 36     |
 | Boot               | Intel® SSD D3-S4610 240G      | 3      |
