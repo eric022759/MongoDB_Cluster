@@ -1,8 +1,3 @@
----
-title: 'MongoDB'
-disqus: hackmd
----
-
 MongoDB Cluster
 ===
 Building MongoDB for record all UiPath robot execution logs.
@@ -30,11 +25,17 @@ Servers:
 
 ## Host info
 
+|        | Server1<br />10.106.25.113 | Server2<br />10.106.25.114 | Server3<br />10.106.25.115 |
+| ------ |:-------------------------- |:-------------------------- |:-------------------------- |
+| Shard1 | Primary<br />Port: 20001   | Secondary<br />Port: 20001 | Arbiter<br />Port: 20001   |
+| Shard2 | Arbiter<br />Port: 20002   | Primary<br />Port: 20002   | Secondary<br />Port: 20002 |
+| Shard3 | Secondary<br />Port: 20003 | Arbiter<br />Port: 20003   | Primary<br />Port: 20003   |
+| Config | Config<br />Port: 30000    | Config<br />Port: 30000    | Config<br />Port: 30000    |
+| Route  | Route<br />Port: 40000     | Route<br />Port: 40000     | Route<br />Port: 40000     |
 
-| Hostname | roles    | IP       | replica set name | port |
-| Shard1 | -------- | -------- | ---------------- | ---- |
-| Shard2 | -------- | -------- | 1                | 1    |
-| Shard3 | Text     | Text     | 1                | 1    |
+
+## Deployment
+
 
 
 
