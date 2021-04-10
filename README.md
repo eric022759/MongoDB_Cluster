@@ -8,14 +8,16 @@ Building MongoDB for record all UiPath robot execution logs.
 
 ## Hardware info
 
-Servers:
-* QuantaGrid D52Y-2U : 3 
-    * CPU: 6 * Intel® Xeon® Gold 5218 
-    * RAM: 36 * Skhynix 2666Hz 2R*4 32G
-    * Boot: 3 * Intel® SSD D3-S4610 240G
-    * SSD: 24 * Intel® SSD D3-S4610 1.92TB
-    * NIC: 3 * Broadcom® BCM57414 25G(SFP28)
-    * SAS Controller: 3 * Broadcom® LSI 3316(HW RAID)
+| Server             | Hardware Spec                 | Amount |
+|:------------------ |:----------------------------- |:------ |
+| QuantaGrid D52Y-2U |                               | 3      |
+| CPU                | Intel® Xeon® Gold 5218        | 6      |
+| RAM                | Skhynix 2666Hz 2R4 32G        | 36     |
+| Boot               | Intel® SSD D3-S4610 240G      | 3      |
+| SSD                | Intel® SSD D3-S4610 1.92TB    | 24     |
+| NIC                | Broadcom® BCM57414 25G(SFP28) | 3      |
+| SAS Controller     | Broadcom® LSI 3316(HW RAID)   | 3      |
+
 
 ## Software info
 
