@@ -36,7 +36,7 @@ Building MongoDB for record all UiPath robot execution logs.
 | Route  | Route<br/>Port: 40000     | Route<br/>Port: 40000     | Route<br/>Port: 40000     |
 
 
-## Deployment
+## Installation
 Authorize RHEL:
 
 ```
@@ -74,6 +74,26 @@ gpgkey=https://www.mongodb.org/static/pgp/server-4.4.asc
 install with yum
 ```
 yum install mongodb-org
+```
+
+## Pre-setup
+1. Create folder for DB and log storage.
+```
+mkdir -p /home/mongod/db /home/mongod/log /home/mongod/db/shard1
+mkdir - p /home/mongod/db/shard1 /home/mongod/db/shard2 /home/mongod/db/shard3 /home/mongod/db/config
+```
+
+2. Create 5 service & config file
+```
+# create MongoDB-Shard1.service  ->  /etc/shard1.conf
+# create MongoDB-Shard2.service  ->  /etc/shard2.conf
+# create MongoDB-Shard3.service  ->  /etc/shard3.conf
+# create MongoDB-Config.service  ->  /etc/config.conf
+# create MongoDB-Mongos.service  ->  /etc/mongos.conf
+```
+3. Add 'Mongos' user
+```
+groupadd mongos; useradd -r -g mongod -s /bin/false mongos
 ```
 
 
