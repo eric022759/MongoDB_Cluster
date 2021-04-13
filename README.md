@@ -169,8 +169,8 @@ systemctl restart MongoDB-Shard1.service
 systemctl restart MongoDB-Shard2.service
 systemctl restart MongoDB-Shard3.service
 systemctl restart MongoDB-Config.service
-systemctl restart MongoDB-Mongos.service
 ```
+
 - debug use command
 ``` bash=
 sudo systemctl daemon-reload #.service file update & reload
@@ -186,7 +186,7 @@ netstat -nao | grep LISTEN # check network
 ```
 
 2. Important process:<br/>
-**Shard1, Shard2, Shard3, Config server's replica set needs to be done before start Mongos service.**<br/>
+**Note: Shard1, Shard2, Shard3, Config server's replica set needs to be done before start Mongos service.**<br/>
 
 - Shard1: using 10.106.25.113 server connect mongoDB<br/>
 ```bash=
@@ -207,18 +207,128 @@ config = {
         {
             "_id": 2,
             "host": "10.106.25.115:20001",
-            "arbiterOnly": "true"
+            "arbiterOnly": 1
         }
     ]
 }
-```
-```bash=
+
 rs.initiate(config)
 rs.status()
 ```
 
+- Shard2: using 10.106.25.114 server connect mongoDB<br/>
+```bash=
+mongo 10.106.25.114:20001
+```
+```json=
+config = {
+    "_id": "shard2",
+    "members": [
+        {
+            "_id": 0,
+            "host": "10.106.25.113:20002",
+            "arbiterOnly": 1
+        },
+        {
+            "_id": 1,
+            "host": "10.106.25.114:20002"
+        },
+        {
+            "_id": 2,
+            "host": "10.106.25.115:20002"
+        }
+    ]
+}
 
+rs.initiate(config)
+rs.status()
+```
 
+- Shard3: using 10.106.25.115 server connect mongoDB<br/>
+```bash=
+mongo 10.106.25.115:20003
+```
+```json=
+config = {
+    "_id": "shard3",
+    "members": [
+        {
+            "_id": 0,
+            "host": "10.106.25.113:20003"
+        },
+        {
+            "_id": 1,
+            "host": "10.106.25.114:20003",
+            "arbiterOnly": 1
+        },
+        {
+            "_id": 2,
+            "host": "10.106.25.115:20003"
+        }
+    ]
+}
 
+rs.initiate(config)
+rs.status()
+```
 
-###### tags: `MongoDB` `Documentation`
+- Config: using 10.106.25.113 server connect mongoDB<br/>
+```bash=
+mongo 10.106.25.113:30000
+```
+```json=
+config = {
+    "_id": "mongodb-configsvr",
+    "version": 1,
+    "term": 1,
+    "protocolVersion": 1,
+    "writeConcernMajorityJournalDefault": true,
+    "configsvr": true,
+    "members": [
+        {
+            "_id": 0,
+            "host": "10.106.25.113:30000",
+        },
+        {
+            "_id": 1,
+            "host": "10.106.25.114:30000",
+        },
+        {
+            "_id": 2,
+            "host": "10.106.25.115:30000",
+        }
+
+    ],
+    "settings": {
+        "chainingAllowed": true,
+        "heartbeatTimeoutSecs": 10,
+        "electionTimeoutMillis": 10000,
+        "catchUpTimeoutMillis": -1
+    }
+}
+
+rs.initiate(config)
+rs.status()
+```
+
+3. Start mongos service
+```bash=
+systemctl restart MongoDB-Mongos.service
+```
+
+## Check started service
+- Check process & network
+```bash=
+ps -aux | grep mongo
+lsof -nPi | grep mongo
+```
+- Restart service
+```bash=
+systemctl restart MongoDB-Shard1.service
+systemctl restart MongoDB-Shard2.service
+systemctl restart MongoDB-Shard3.service
+systemctl restart MongoDB-Config.service
+systemctl restart MongoDB-Mongos.service
+```
+
+###### tags: `MongoDB` `Cluster` `Documentation`
