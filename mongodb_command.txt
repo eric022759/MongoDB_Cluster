@@ -110,11 +110,11 @@ mongos 10.106.25.113:40000
 use admin
 ```
 
-db.runCommand({addshard: "shard1/10.106.25.113:20001,10.106.25.114:20001"}); # 10.106.25.115 arbiter
+#db.runCommand({addshard: "shard1/10.106.25.113:20001,10.106.25.114:20001"}); # 10.106.25.115 arbiter
 sh.addShard("shard1/10.106.25.113:20001,10.106.25.114:20001")
 
-db.runCommand({addshard: "shard2/10.106.25.114:20002,10.106.25.115:20002"}); # 10.106.25.113 arbiter
+#db.runCommand({addshard: "shard2/10.106.25.114:20002,10.106.25.115:20002"}); # 10.106.25.113 arbiter
 sh.addShard("shard2/10.106.25.114:20002,10.106.25.115:20002")
 
-db.runCommand({addshard: "shard3/10.106.25.113:20003,10.106.25.115:20003"}); # 10.106.25.114 arbiter
+#db.runCommand({addshard: "shard3/10.106.25.113:20003,10.106.25.115:20003"}); # 10.106.25.114 arbiter
 sh.addShard("shard3/10.106.25.113:20003,10.106.25.115:20003")
