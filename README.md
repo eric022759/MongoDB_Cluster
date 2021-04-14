@@ -26,13 +26,16 @@ Building MongoDB for record all UiPath robot execution logs.
 | RHEL 7.6     | MongoDB Community 4.4.0    |
 
 ## Host info
+**Note: Highly recommending build over 3 config servers in different rack of server.**
+
+This practice only build 3 vm in one server.
 
 |        | Server1<br/>10.106.25.113 | Server2<br/>10.106.25.114 | Server3<br/>10.106.25.115 |
 | ------ |:-------------------------- |:-------------------------- |:-------------------------- |
-| Shard1 | Primary<br/>Port: 20001   | Secondary<br/>Port: 20001 | Arbiter<br/>Port: 20001   |
-| Shard2 | Arbiter<br/>Port: 20002   | Primary<br/>Port: 20002   | Secondary<br/>Port: 20002 |
-| Shard3 | Secondary<br/>Port: 20003 | Arbiter<br/>Port: 20003   | Primary<br/>Port: 20003   |
-| Config | Config<br/>Port: 30000    | Config<br/>Port: 30000    | Config<br/>Port: 30000    |
+| Shard1 | **Primary**<br/>Port: 20001   | Secondary<br/>Port: 20001 | Arbiter<br/>Port: 20001   |
+| Shard2 | Arbiter<br/>Port: 20002   | **Primary**<br/>Port: 20002   | Secondary<br/>Port: 20002 |
+| Shard3 | Secondary<br/>Port: 20003 | Arbiter<br/>Port: 20003   | **Primary**<br/>Port: 20003   |
+| Config | Config(**Primary**)<br/>Port: 30000    | Config<br/>Port: 30000    | Config<br/>Port: 30000    |
 | Route  | Route<br/>Port: 40000     | Route<br/>Port: 40000     | Route<br/>Port: 40000     |
 
 
@@ -329,6 +332,22 @@ systemctl restart MongoDB-Shard2.service
 systemctl restart MongoDB-Shard3.service
 systemctl restart MongoDB-Config.service
 systemctl restart MongoDB-Mongos.service
+```
+
+## Add Shard in Mongos
+```bash=
+mongo 10.106.25.113:40000
+use admin
+```
+```bash=
+#db.runCommand({addshard: "shard1/10.106.25.113:20001,10.106.25.114:20001"}); # 10.106.25.115 arbiter
+sh.addShard("shard1/10.106.25.113:20001,10.106.25.114:20001")
+
+#db.runCommand({addshard: "shard2/10.106.25.114:20002,10.106.25.115:20002"}); # 10.106.25.113 arbiter
+sh.addShard("shard2/10.106.25.114:20002,10.106.25.115:20002")
+
+#db.runCommand({addshard: "shard3/10.106.25.113:20003,10.106.25.115:20003"}); # 10.106.25.114 arbiter
+sh.addShard("shard3/10.106.25.113:20003,10.106.25.115:20003")
 ```
 
 ###### tags: `MongoDB` `Cluster` `Documentation`
