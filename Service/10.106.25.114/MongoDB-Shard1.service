@@ -7,14 +7,14 @@ Wants=network-online.target
 [Service]
 User=mongod
 Group=mongod
-Environment="OPTIONS=-f /etc/shard3.conf"
+Environment="OPTIONS=-f /etc/shard1.conf"
 EnvironmentFile=-/etc/sysconfig/mongod
 ExecStart=/usr/bin/mongod $OPTIONS
 ExecStartPre=/usr/bin/mkdir -p /var/run/mongodb
 ExecStartPre=/usr/bin/chown mongod:mongod /var/run/mongodb
 ExecStartPre=/usr/bin/chmod 0755 /var/run/mongodb
 PermissionsStartOnly=true
-PIDFile=/var/run/mongodb/shard3.pid
+PIDFile=/var/run/mongodb/shard1.pid
 Type=forking
 # file size
 LimitFSIZE=infinity
@@ -36,3 +36,4 @@ TasksAccounting=false
 
 [Install]
 WantedBy=multi-user.target
+

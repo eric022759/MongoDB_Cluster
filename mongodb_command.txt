@@ -1,0 +1,120 @@
+#Shard1
+config = {
+    "_id": "shard1",
+    "members": [
+        {
+            "_id": 0,
+            "host": "10.106.25.113:20001"
+        },
+        {
+            "_id": 1,
+            "host": "10.106.25.114:20001"
+        },
+        {
+            "_id": 2,
+            "host": "10.106.25.115:20001",
+            "arbiterOnly": 1
+        }
+    ]
+}
+
+rs.initiate(config)
+rs.status()
+
+------------------------------------------------
+#Shard2
+config = {
+    "_id": "shard2",
+    "members": [
+        {
+            "_id": 0,
+            "host": "10.106.25.113:20002",
+            "arbiterOnly": 1
+        },
+        {
+            "_id": 1,
+            "host": "10.106.25.114:20002"
+        },
+        {
+            "_id": 2,
+            "host": "10.106.25.115:20002"
+        }
+    ]
+}
+
+rs.initiate(config)
+rs.status()
+
+------------------------------------------------
+#Shard3
+config = {
+    "_id": "shard3",
+    "members": [
+        {
+            "_id": 0,
+            "host": "10.106.25.113:20003"
+        },
+        {
+            "_id": 1,
+            "host": "10.106.25.114:20003",
+            "arbiterOnly": 1
+        },
+        {
+            "_id": 2,
+            "host": "10.106.25.115:20003"
+        }
+    ]
+}
+
+rs.initiate(config)
+rs.status()
+
+-------------Config-------------------------
+#Config Server -- 
+config = {
+    "_id": "mongodb-configsvr",
+    "version": 1,
+    "term": 1,
+    "protocolVersion": 1,
+    "writeConcernMajorityJournalDefault": true,
+    "configsvr": true,
+    "members": [
+        {
+            "_id": 0,
+            "host": "10.106.25.113:30000",
+        },
+        {
+            "_id": 1,
+            "host": "10.106.25.114:30000",
+        },
+        {
+            "_id": 2,
+            "host": "10.106.25.115:30000",
+        }
+
+    ],
+    "settings": {
+        "chainingAllowed": true,
+        "heartbeatTimeoutSecs": 10,
+        "electionTimeoutMillis": 10000,
+        "catchUpTimeoutMillis": -1
+    }
+}
+
+rs.initiate(config)
+rs.status()
+
+-------------connect mongos and add Shard------------------
+```bash=
+mongos 10.106.25.113:40000
+use admin
+```
+
+db.runCommand({addshard: "shard1/10.106.25.113:20001,10.106.25.114:20001"}); # 10.106.25.115 arbiter
+sh.addShard("shard1/10.106.25.113:20001,10.106.25.114:20001")
+
+db.runCommand({addshard: "shard2/10.106.25.114:20002,10.106.25.115:20002"}); # 10.106.25.113 arbiter
+sh.addShard("shard2/10.106.25.114:20002,10.106.25.115:20002")
+
+db.runCommand({addshard: "shard3/10.106.25.113:20003,10.106.25.115:20003"}); # 10.106.25.114 arbiter
+sh.addShard("shard3/10.106.25.113:20003,10.106.25.115:20003")
