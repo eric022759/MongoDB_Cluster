@@ -397,7 +397,15 @@ db.[Collection name].stats()
 
 #Check database load balance -> database.chunks:shard1,shard2,shard3 should be the same size
 db.printShardingStatus()
+
+#Check wherther collection is sharded 
+db.log.getShardDistribution()
 ```
+
+![](https://i.imgur.com/dsvDFQY.png)
+
+
+
 
 
 
