@@ -350,4 +350,61 @@ sh.addShard("shard2/10.106.25.114:20002,10.106.25.115:20002")
 sh.addShard("shard3/10.106.25.113:20003,10.106.25.115:20003")
 ```
 
+## Login MongoDB
+- Create admin user
+```bash=
+mongo 10.106.25.113:40000
+use admin
+
+db.createUser(
+  {
+    user: "*********",
+    pwd: "*********",
+    roles: [ { role: "root", db: "admin" } ]
+  }
+)
+```
+
+- Create uipath user
+```bash=
+use [DB name]
+
+db.createUser({
+    user: "*********",
+    pwd: "*********",
+    roles: [{ role: "readWrite", db: "[DB name]" }]
+})
+```
+
+- Enable database/collection sharding
+```bash=
+#enable database shard
+use admin
+db.runCommand({enablesharding:"[DB name]"})
+
+#enable collection shard
+use admin
+db.runCommand({shardcollection:"[DB name].[Collection name]", key:{_id:1}})
+
+```
+
+- Create data for shard testing 
+```bash=
+for (var i=0; i<=50000; i++) db.[Collection name].insert({startT:i, user:"FB"})
+
+#Check collection stats
+db.[Collection name].stats()
+
+#Check database load balance -> database.chunks:shard1,shard2,shard3 should be the same size
+db.printShardingStatus()
+```
+
+
+
+
+
+
 ###### tags: `MongoDB` `Cluster` `Documentation`
+
+
+
