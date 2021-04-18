@@ -351,6 +351,7 @@ sh.addShard("shard3/10.106.25.113:20003,10.106.25.115:20003")
 ```
 
 ## Copy data to local machine -> Service file
+```bash=
 scp root@10.106.25.113:/etc/systemd/system/{MongoDB-Shard1,MongoDB-Shard2,MongoDB-Shard3,MongoDB-Config,MongoDB-Mongos}.service \
 /Users/ericyang/Desktop/MongoDB_Cluster/service/10.106.25.113
 
@@ -359,8 +360,11 @@ scp root@10.106.25.114:/etc/systemd/system/{MongoDB-Shard1,MongoDB-Shard2,MongoD
 
 scp root@10.106.25.115:/etc/systemd/system/{MongoDB-Shard1,MongoDB-Shard2,MongoDB-Shard3,MongoDB-Config,MongoDB-Mongos}.service \
 /Users/ericyang/Desktop/MongoDB_Cluster/service/10.106.25.115
+```
+
 
 ## Copy data to local machine -> Config file
+```bash=
 scp root@10.106.25.113:/etc/{shard1,shard2,shard3,config,mongos}.conf 
 /Users/ericyang/Desktop/MongoDB_Cluster/config/10.106.25.113
 
@@ -369,6 +373,8 @@ scp root@10.106.25.114:/etc/{shard1,shard2,shard3,config,mongos}.conf \
 
 scp root@10.106.25.115:/etc/{shard1,shard2,shard3,config,mongos}.conf \
 /Users/ericyang/Desktop/MongoDB_Cluster/config/10.106.25.115
+```
+
 
 ###### tags: `MongoDB` `Cluster` `Documentation`
 
