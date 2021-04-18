@@ -376,7 +376,8 @@ db.createUser({
 })
 ```
 
-- Enable database/collection sharding
+- Enable database/collection sharding<br/>
+https://docs.mongodb.com/manual/core/sharding-shard-key/#std-label-shard-key-missing
 ```bash=
 #enable database shard
 use admin
@@ -385,7 +386,9 @@ db.runCommand({enablesharding:"[DB name]"})
 #enable collection shard
 use admin
 db.runCommand({shardcollection:"[DB name].[Collection name]", key:{_id:1}})
-
+#Specify a document { <shard key field1>: <1|"hashed">, ... } where
+#1.   1 indicates range-based sharding
+#2.   "hashed" indicates hashed sharding.
 ```
 
 - Create data for shard testing 
@@ -404,13 +407,8 @@ db.log.getShardDistribution()
 
 ![](https://i.imgur.com/dsvDFQY.png)
 
-
-
-
-
-
-
-
+- Shard key specification -- **IMPORTANT**<br/> 
+[Shard key concept](https://blog.toright.com/posts/4552/mongodb-sharding-%E5%88%86%E6%95%A3%E5%BC%8F%E5%84%B2%E5%AD%98%E6%9E%B6%E6%A7%8B%E5%BB%BA%E7%BD%AE-%E6%A6%82%E5%BF%B5%E7%AF%87.html)
 
 ###### tags: `MongoDB` `Cluster` `Documentation`
 
