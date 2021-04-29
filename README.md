@@ -35,8 +35,34 @@ This practice only build 3 vm in one server.
 | Shard1 | **Primary**<br/>Port: 20001   | Secondary<br/>Port: 20001 | Arbiter<br/>Port: 20001   |
 | Shard2 | Arbiter<br/>Port: 20002   | **Primary**<br/>Port: 20002   | Secondary<br/>Port: 20002 |
 | Shard3 | Secondary<br/>Port: 20003 | Arbiter<br/>Port: 20003   | **Primary**<br/>Port: 20003   |
-| Config | Config(**Primary**)<br/>Port: 30000    | Config<br/>Port: 30000    | Config<br/>Port: 30000    |
+| Config | Config (**Primary**)<br/>Port: 30000    | Config (Secondary)<br/>Port: 30000    | Config (Secondary)<br/>Port: 30000    |
 | Route  | Route<br/>Port: 40000     | Route<br/>Port: 40000     | Route<br/>Port: 40000     |
+
+## Overall execute sequence:
+Create mongodb-keyfile<br/>
+Copy keyfile **to all server**<br/>
+Change keyfile permission(chmod) & owner(chown) **in all server**<br/>
+↓<br/>
+Annotate .conf file → **Security.keyFile** setting<br/>
+Start Shard1, Shard2, Shard3, Config service<br/>
+↓<br/>
+**Finish 3 shards** & **Finish Config Server** = total 32 times<br/>
+(1) mongo IP_Address:Shard1_Port (Primary)<br/>
+(2) activate Shard1 replica set → rs.initiate(config)<br/>
+(3) use admin & create root user<br/>
+(4) disannotate .conf file → **Security.keyFile** setting<br/>
+(5) restart 3-VM MongoDB-Shard1.service<br/>
+(6) mongo IP_Address:Shard1_Port (Primary)<br/>
+(7) use admin & db.auth()<br/>
+(8) rs.initiate() → rs.status()<br/>
+↓<br/>
+**Finish Mongos Server** (1)~(3)<br/>
+#Disannotate /etc/mongos.conf file → **Security.keyFile** setting<br/>
+#Restart Mongos service<br/>
+sh.addShard(shard1, shard2, shard3)<br/>
+↓<br/> 
+Create database & collection<br/>
+Enable collection sharding
 
 
 ## RHEL authorization
@@ -64,9 +90,7 @@ https://docs.mongodb.com/manual/reference/program/mongos/
 Create a /etc/yum.repos.d/mongodb-org-4.4.repo file
 ``` bash=
 vi /etc/yum.repos.d/mongodb-org-4.4.repo
-```
-enter these lines
-``` bash=
+
 [mongodb-org-4.4]
 name=MongoDB Repository
 baseurl=https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/4.4/x86_64/
@@ -86,7 +110,7 @@ mkdir -p /home/mongod/db /home/mongod/log /home/mongod/log/mongos
 mkdir -p /home/mongod/db/shard1 /home/mongod/db/shard2 /home/mongod/db/shard3 /home/mongod/db/config
 ```
 
-2. Create 5 service & config file
+2. Create 5 service & config file → refer to .service & .conf file
 ``` txt
 # create /etc/systemd/system/MongoDB-Shard1.service  ->  /etc/shard1.conf
 # create /etc/systemd/system/MongoDB-Shard2.service  ->  /etc/shard2.conf
@@ -108,8 +132,8 @@ scp MongoDB-Shard1.service MongoDB-Shard2.service MongoDB-Shard3.service MongoDB
 sudo chown -R mongod:mongod /home/mongod
 
 #create mongos user & change directory owner
-groupadd mongos; useradd -r -g mongod -s /bin/false mongos
-sudo chown -R mongos:mongod /home/mongod/log/mongos
+# groupadd mongos; useradd -r -g mongod -s /bin/false mongos
+# sudo chown -R mongos:mongod /home/mongod/log/mongos
 ```
 
 4. Change SElinux configuration:
@@ -137,11 +161,10 @@ SELINUXTYPE=targeted
 
 ```bash=
 reboot
-```
 
-``` bash=
 getenforce # check current security mode
 ```
+
  - Option 2:
 ```  bash=
 getenforce # check security current mode
@@ -168,10 +191,10 @@ iptables -A OUTPUT -d 10.106.25.113 -p tcp --source-port 20001 -m state --state 
 ## Start service
 1. using systemctl start service
 ``` bash=
-systemctl restart MongoDB-Shard1.service
-systemctl restart MongoDB-Shard2.service
-systemctl restart MongoDB-Shard3.service
-systemctl restart MongoDB-Config.service
+systemctl start MongoDB-Shard1.service
+systemctl start MongoDB-Shard2.service
+systemctl start MongoDB-Shard3.service
+systemctl start MongoDB-Config.service
 ```
 
 - debug use command
@@ -217,11 +240,22 @@ config = {
 
 rs.initiate(config)
 rs.status()
+db.isMaster()
+
+新增Admin：(必須要給予roles權限)
+use admin
+db.createUser(
+  {
+    user: "",
+    pwd: "",
+    roles: [ { role: "root", db: "admin" } ]
+  }
+)
 ```
 
 - Shard2: using 10.106.25.114 server connect mongoDB<br/>
 ```bash=
-mongo 10.106.25.114:20001
+mongo 10.106.25.114:20002
 ```
 ```json=
 config = {
@@ -245,6 +279,17 @@ config = {
 
 rs.initiate(config)
 rs.status()
+db.isMaster()
+
+新增Admin：(必須要給予roles權限)
+use admin
+db.createUser(
+  {
+    user: "",
+    pwd: "",
+    roles: [ { role: "root", db: "admin" } ]
+  }
+)
 ```
 
 - Shard3: using 10.106.25.115 server connect mongoDB<br/>
@@ -273,8 +318,41 @@ config = {
 
 rs.initiate(config)
 rs.status()
+
+新增Admin：(必須要給予roles權限)
+use admin
+db.createUser(
+  {
+    user: "",
+    pwd: "",
+    roles: [ { role: "root", db: "admin" } ]
+  }
+)
 ```
 
+- Create Secure replicaset connection keyfile
+```bash=
+10.106.25.113 VM
+# Create encrypted keyfile
+openssl rand -base64 741 > /etc/mongodb-keyfile
+# Copy file to other mongod instance
+cd /etc
+scp mongodb-keyfile root@10.106.25.114:/etc
+scp mongodb-keyfile root@10.106.25.115:/etc
+
+#change file permission -> 10.106.25.113, 10.106.25.114, 10.106.25.115
+chmod 600 /etc/mongodb-keyfile
+#change user permission
+chown mongod.mongod /etc/mongodb-keyfile
+-------------------------------------------------
+10.106.25.114 VM
+openssl rand -base64 741 > /etc/mongodb-keyfile
+cd /etc
+scp shard2-keyfile root@10.106.25.113:/etc
+scp shard2-keyfile root@10.106.25.115:/etc
+chmod 600 /etc/shard2-keyfile
+chown mongod.mongod /etc/shard2-keyfile
+```
 - Config: using 10.106.25.113 server connect mongoDB<br/>
 ```bash=
 mongo 10.106.25.113:30000
@@ -312,26 +390,50 @@ config = {
 
 rs.initiate(config)
 rs.status()
+
+新增Admin：(必須要給予roles權限)
+use admin
+db.createUser(
+  {
+    user: "",
+    pwd: "",
+    roles: [ { role: "root", db: "admin" } ]
+  }
+)
 ```
 
-3. Start mongos service
+3. Start mongos service & create root account
 ```bash=
+systemctl start MongoDB-Mongos.service
+
+mongo 10.106.25.113:40000
+
+新增Admin：(必須要給予roles權限)
+use admin
+db.createUser(
+  {
+    user: "",
+    pwd: "",
+    roles: [ { role: "root", db: "admin" } ]
+  }
+)
+
 systemctl restart MongoDB-Mongos.service
 ```
 
 ## Check started service
 - Check process & network
 ```bash=
-ps -aux | grep mongo
+ps -aux | grep mongo    
 lsof -nPi | grep mongo
 ```
-- Restart service
+- Restart service 
 ```bash=
-systemctl restart MongoDB-Shard1.service
-systemctl restart MongoDB-Shard2.service
-systemctl restart MongoDB-Shard3.service
-systemctl restart MongoDB-Config.service
-systemctl restart MongoDB-Mongos.service
+#systemctl restart MongoDB-Shard1.service
+#systemctl restart MongoDB-Shard2.service
+#systemctl restart MongoDB-Shard3.service
+#systemctl restart MongoDB-Config.service
+#systemctl restart MongoDB-Mongos.service
 ```
 
 ## Add Shard in Mongos
@@ -349,6 +451,8 @@ sh.addShard("shard2/10.106.25.114:20002,10.106.25.115:20002")
 #db.runCommand({addshard: "shard3/10.106.25.113:20003,10.106.25.115:20003"}); # 10.106.25.114 arbiter
 sh.addShard("shard3/10.106.25.113:20003,10.106.25.115:20003")
 ```
+
+
 
 ## Copy data to local machine -> Service file
 ```bash=
