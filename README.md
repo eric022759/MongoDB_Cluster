@@ -126,7 +126,8 @@ scp shard1.conf shard2.conf shard3.conf config.conf mongos.conf root@ip_address:
 cd /etc/systemd/system/
 scp MongoDB-Shard1.service MongoDB-Shard2.service MongoDB-Shard3.service MongoDB-Config.service MongoDB-Mongos.service root@ip_address:/etc/systemd/system
 ```
-3. Add user/group and change directory owner
+3. Add user/group and change directory owner<br/>
+➞ The reason why don't create mongos user is because of security.keyFile setting. keyFile allows only one user to have  read write permission(chmod 600). It doesn't allow group user to access keyFile for security reason.
 ``` bash=
 # create mongod user & change directory owner
 sudo chown -R mongod:mongod /home/mongod
