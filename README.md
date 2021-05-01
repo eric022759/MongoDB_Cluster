@@ -64,7 +64,6 @@ sh.addShard(shard1, shard2, shard3)<br/>
 Create database & collection<br/>
 Enable collection sharding
 
-
 ## RHEL authorization
 
 ``` bash=
@@ -473,7 +472,10 @@ db.printShardingStatus()
 db.log.getShardDistribution()
 ```
 
+## Connection string
+Note: 因為＠是特殊符號，所以要encoding成%40<br/>
 
+mongodb://user_name:pwd@IP_address:Port
 
 
 
