@@ -186,7 +186,7 @@ iptables -L # check ip tables
 # allows all incoming traffic from <ip-address> on port 27017, which allows the application server to connect to the mongod instance.
 iptables -A INPUT -s 10.106.25.200 -p tcp --destination-port 27017 -m state --state NEW,ESTABLISHED -j ACCEPT
 #allows outgoing traffic from the mongod to reach the application server.
-iptables -A OUTPUT -d 10.106.25.113 -p tcp --source-port 20001 -m state --state ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -d 10.106.25.113 -p tcp --source-port 40000 -m state --state ESTABLISHED -j ACCEPT
 ```
 
 ## Start service
@@ -437,11 +437,12 @@ lsof -nPi | grep mongo
 #systemctl restart MongoDB-Mongos.service
 ```
 
-## Add Shard in Mongos
+## Add/Config sharding cluster in Mongos
 ```bash=
 mongo 10.106.25.113:40000
 use admin
 ```
+- config sharding cluster
 ```bash=
 #db.runCommand({addshard: "shard1/10.106.25.113:20001,10.106.25.114:20001"}); # 10.106.25.115 arbiter
 sh.addShard("shard1/10.106.25.113:20001,10.106.25.114:20001")
@@ -452,6 +453,27 @@ sh.addShard("shard2/10.106.25.114:20002,10.106.25.115:20002")
 #db.runCommand({addshard: "shard3/10.106.25.113:20003,10.106.25.115:20003"}); # 10.106.25.114 arbiter
 sh.addShard("shard3/10.106.25.113:20003,10.106.25.115:20003")
 ```
+- enable database/collection sharding
+```bash=
+use admin
+#config db into sharding
+db.runCommand({enablesharding:"db_name"})
+#config collection into sharding
+db.runCommand({shardcollection:"db_name.collection_name", key:{_id:1}})
+```
+- test sharding result
+```bash=
+#assuming we are using uipath.log ➞ db.collection
+for (var i=0; i<=50000; i++) db.log.insert({startT:i, user:"Test"})
+
+db.log.stats()
+
+db.printShardingStatus()
+
+db.log.getShardDistribution()
+```
+
+
 
 
 
