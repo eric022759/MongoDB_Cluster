@@ -285,8 +285,8 @@ db.isMaster()
 use admin
 db.createUser(
   {
-    user: "",
-    pwd: "",
+    user: "r",
+    pwd: "q",
     roles: [ { role: "root", db: "admin" } ]
   }
 )
@@ -323,8 +323,8 @@ rs.status()
 use admin
 db.createUser(
   {
-    user: "",
-    pwd: "",
+    user: "r",
+    pwd: "q",
     roles: [ { role: "root", db: "admin" } ]
   }
 )
@@ -395,8 +395,8 @@ rs.status()
 use admin
 db.createUser(
   {
-    user: "",
-    pwd: "",
+    user: "r",
+    pwd: "q",
     roles: [ { role: "root", db: "admin" } ]
   }
 )
@@ -412,8 +412,8 @@ mongo 10.106.25.113:40000
 use admin
 db.createUser(
   {
-    user: "",
-    pwd: "",
+    user: "r",
+    pwd: "q",
     roles: [ { role: "root", db: "admin" } ]
   }
 )
