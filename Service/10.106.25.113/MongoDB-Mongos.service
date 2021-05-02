@@ -6,7 +6,7 @@ After=network-online.target
 Wants=network-online.target
 
 [Service]
-User=mongos
+User=mongod
 Group=mongod
 Type=forking
 #PermissionsStartOnly=True
